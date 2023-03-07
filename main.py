@@ -13,7 +13,7 @@ class Sftp:
         self.port = port
 
     def connect(self):
-        """Connects to SFTP server"""
+        """Connects server"""
         cnopts = pysftp.CnOpts()
         cnopts.hostkeys = None
 
@@ -29,6 +29,21 @@ class Sftp:
             raise Exception(err)
         finally:
             print(f"Connected to {self.hostname} as {self.username}")
+
+    def disconnect(self):
+        """Closes connection"""
+        self.connection.close()
+        print(f"Disconnected from host {self.hostname}")
+
+    def listdir(self, remote_path):
+        """Lists all files and directories"""
+        for obj in self.connection.listdir(remote_path):
+            yield obj
+
+    def listdir_attr(self, remote_path):
+        """Lists all files and directories (with their attributes)"""
+        for attr in self.connection.listdir_attr(remote_path):
+            yield attr
 
 
 if __name__ == '__main__':
@@ -47,3 +62,8 @@ if __name__ == '__main__':
         exit(0)
 
     sftp.connect()
+
+    for file in sftp.listdir_attr("/"):
+        print(file.filename)
+
+    sftp.disconnect()
